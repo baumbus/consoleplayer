@@ -1,0 +1,23 @@
+[package]
+name = "console-player"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.97"
+bon = "3.5.1"
+chrono = "0.4.40"
+clap = { version = "4.5.35", features = ["derive"] }
+color-eyre = "0.6.3"
+# crossterm = "0.29.0"
+discord_game_sdk = "1.0.1"
+dotenv = "0.15.0"
+env_logger = "0.11.8"
+log = "0.4.27"
+pretty_assertions = "1.4.1"
+ratatui = { version = "0.29.0", features = ["all-widgets", "document-features", "macros", "serde"] }
+serde = { version = "1.0.219", features = ["derive"] }
+signal-hook = "0.3.17"
+thiserror = "2.0.12"
+toml = "0.8.20"
+tui-logger = {version = "0.17.1" }
