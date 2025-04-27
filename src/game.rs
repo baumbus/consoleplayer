@@ -1,13 +1,11 @@
-use std::{env, fs::File, io::Read, path::PathBuf};
-
 use bon::Builder;
 
 use discord_game_sdk::Activity;
-use log::debug;
 use ratatui::widgets::ListItem;
 use serde::{Deserialize, Serialize};
 
-use crate::error::GameError;
+pub mod gamefile;
+pub mod gamelist;
 
 #[derive(Debug, Clone, PartialEq, Eq, Builder, Serialize, Deserialize)]
 pub struct Game {
@@ -50,7 +48,10 @@ impl Game {
     }
 
     pub fn generate_activity(&mut self) {
-        let mut activity = Activity::empty().with_state(&self.name).with_details(&self.platform).to_owned();
+        let mut activity = Activity::empty()
+            .with_state(&self.name)
+            .with_details(&self.platform)
+            .to_owned();
 
         let activity = match (
             &self.large_image_key,
@@ -112,56 +113,6 @@ impl Game {
         .to_owned();
 
         self.activity = Some(activity);
-    }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct GameFile {
-    #[serde(skip)]
-    path: Option<PathBuf>,
-    #[serde(default)]
-    game: Vec<Game>,
-}
-
-impl GameFile {
-    const CONFIG_FILE: &str = ".config/consoleplayergames.toml";
-
-    pub fn new() -> Result<Self, GameError> {
-        debug!("reading $HOME");
-        let home = env::var("HOME")?;
-        debug!("$HOME content: {}", home);
-
-        let mut path = PathBuf::new();
-        path.push(home);
-        path.push(Self::CONFIG_FILE);
-
-        debug!("config path: {:#?}", path);
-
-        if !path.try_exists()? {
-            debug!("creating config file");
-            let _ = File::create(&path)?;
-        }
-
-        let mut file = File::open(&path)?;
-        let path = Some(path);
-
-        let mut content = String::new();
-        let size = file.read_to_string(&mut content)?;
-        debug!("Readed {} bytes from the config file", size);
-
-        let mut game_file: GameFile = toml::from_str(content.as_str())?;
-        game_file.path = path;
-
-        Ok(game_file)
-    }
-
-    #[expect(dead_code)]
-    pub(crate) fn game_iter(&self) -> std::slice::Iter<'_, Game> {
-        self.game.iter()
-    }
-
-    pub(crate) fn owned_game_iter(&self) -> std::vec::IntoIter<Game> {
-        self.game.clone().into_iter()
     }
 }
 

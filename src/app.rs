@@ -6,22 +6,14 @@ use log::info;
 use ratatui::{
     DefaultTerminal, Frame,
     crossterm::event::{self, Event, KeyEvent, KeyEventKind},
-    style::Stylize,
-    symbols::border,
-    text::Line,
-    widgets::{Block, HighlightSpacing, List, ListState, StatefulWidget},
+    widgets::ListState,
 };
 
 use crate::{
     Config,
     event_handler::EventHandler,
-    game::{Game, GameFile},
+    game::{Game, gamefile::GameFile, gamelist::GameList},
 };
-
-#[derive(Debug, Default)]
-pub(crate) struct GameList {
-    items: Vec<Game>,
-}
 
 #[derive(Debug)]
 pub(crate) struct App<'a> {
@@ -162,45 +154,5 @@ impl<'a> App<'a> {
                 }
             });
         }
-    }
-}
-
-impl StatefulWidget for &GameList {
-    type State = ListState;
-
-    fn render(
-        self,
-        area: ratatui::prelude::Rect,
-        buf: &mut ratatui::prelude::Buffer,
-        state: &mut Self::State,
-    ) {
-        let title = Line::from(" Games ".bold());
-        let instructions = Line::from(vec![
-            " Activate current selection ".into(),
-            "<ENTER> ".blue().bold(),
-            " Navigation ".into(),
-            "<Arrowkeys> ".blue().bold(),
-            " Edit ".into(),
-            "<E> ".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-            " Unselect ".into(),
-            "<U> ".blue().bold(),
-        ]);
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
-
-        // Iterate through all elements in the `items` and stylize them.
-        let items: Vec<Game> = self.items.to_vec();
-
-        // Create a List from all list items and highlight the currently selected one
-        let list = List::new(items)
-            .block(block)
-            .highlight_symbol(">")
-            .highlight_spacing(HighlightSpacing::Always);
-
-        StatefulWidget::render(list, area, buf, state);
     }
 }
