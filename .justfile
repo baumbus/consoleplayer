@@ -18,3 +18,4 @@ dev: build doc-build
 commit:
     git add .
     git commit
+    git push

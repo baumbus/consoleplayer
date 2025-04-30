@@ -11,19 +11,13 @@ env:
   DISCORD_GAME_SDK_PATH: $HOME/discord-lib/
 
 jobs:
-  cache-lib:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Downloading lib
-        run: wget -O ~/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
-      - name: Unzip
-        run: unzip -d ~/discord-lib/ ~/discord_lib.zip
   build:
-    needs: cache-lib
-
     runs-on: ubuntu-latest
-
     steps:
+    - name: Downloading lib
+      run: wget -O ~/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
+    - name: Unzip
+      run: unzip -d ~/discord-lib/ ~/discord_lib.zip
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose
