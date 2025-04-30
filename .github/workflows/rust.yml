@@ -19,6 +19,12 @@ jobs:
       run: wget -O ~/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
     - name: Unzip
       run: unzip -d ~/discord-lib/ ~/discord_lib.zip
+    - name: Upload lib
+      uses: actions/upload-artifact@v4
+      with:
+        name: discord-game-sdk
+        path: |
+          ~/discord-lib
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose
