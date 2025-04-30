@@ -19,6 +19,8 @@ jobs:
       run: wget -O ~/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
     - name: Unzip
       run: unzip -d ~/discord-lib/ ~/discord_lib.zip
+    - name: Lib preperation
+      run: cp $DISCORD_GAME_SDK_PATH/lib/x86_64/{,lib}discord_game_sdk.so
     - name: Upload lib
       uses: actions/upload-artifact@v4
       with:
