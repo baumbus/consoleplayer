@@ -2,4 +2,19 @@ list:
     just --list
 
 doc:
-    cargo doc --features tui --document-private-items --open
+    cargo doc --document-private-items --open
+
+doc-build:
+    cargo doc --document-private-items
+
+build:
+    cargo build
+
+release:
+    cargo build --release
+
+dev: build doc-build
+
+commit:
+    git add .
+    git commit

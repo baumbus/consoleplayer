@@ -20,4 +20,5 @@ serde = { version = "1.0.219", features = ["derive"] }
 signal-hook = "0.3.17"
 thiserror = "2.0.12"
 toml = "0.8.20"
+tui-input = { version = "0.12.0", features = ["serde"] }
 tui-logger = {version = "0.17.1" }
