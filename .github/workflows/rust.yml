@@ -29,7 +29,13 @@ jobs:
           ~/discord-lib
     - uses: actions/checkout@v4
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --release
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: consoleplayer
+        path: |
+          ~/work/consoleplayer/consoleplayer/target/release/console-player
     - name: Run tests
       run: cargo test --verbose
     - name: Run clippy
