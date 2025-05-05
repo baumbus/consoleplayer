@@ -19,3 +19,7 @@ commit:
     git add .
     git commit
     git push
+
+act:
+    sudo systemctl start docker
+    act

@@ -8,20 +8,37 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  DISCORD_GAME_SDK_PATH: /home/runner/discord-lib/
+  DISCORD_GAME_SDK_PATH: /tmp/discord-lib
   LD_LIBRARY_PATH: ${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}$DISCORD_GAME_SDK_PATH/lib/x86_64
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
     steps:
     - name: Downloading lib
-      run: wget -O ~/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
+      run: wget -O /tmp/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
     - name: Unzip
-      run: unzip -d ~/discord-lib/ ~/discord_lib.zip
+      run: unzip -d $DISCORD_GAME_SDK_PATH /tmp/discord_lib.zip
     - name: Lib preperation
       run: cp $DISCORD_GAME_SDK_PATH/lib/x86_64/{,lib}discord_game_sdk.so
+
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+    - name: Downloading discord-game-sdk
+      run: wget -O /tmp/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
+    - name: Unzipping discord-game-sdk
+      run: unzip -d $DISCORD_GAME_SDK_PATH /tmp/discord_lib.zip
+    - name: Preparation discord-game-sdk
+      run: cp $DISCORD_GAME_SDK_PATH/lib/x86_64/{,lib}discord_game_sdk.so
+    - name: Installing libclang
+      run: sudo apt update && sudo apt install libclang-dev -y
     - uses: actions/checkout@v4
+    - name: Installing Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        components: clippy
     - name: Build
       run: cargo build --verbose --release
     - name: Upload binaries
@@ -33,4 +50,4 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Run clippy
-      run: cargo clippy --verbose
+      run: cargo clippy --verbose  
