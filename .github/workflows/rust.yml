@@ -21,12 +21,6 @@ jobs:
       run: unzip -d ~/discord-lib/ ~/discord_lib.zip
     - name: Lib preperation
       run: cp $DISCORD_GAME_SDK_PATH/lib/x86_64/{,lib}discord_game_sdk.so
-    - name: Upload lib
-      uses: actions/upload-artifact@v4
-      with:
-        name: discord-game-sdk
-        path: |
-          ~/discord-lib
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose --release
