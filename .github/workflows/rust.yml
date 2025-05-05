@@ -12,18 +12,7 @@ env:
   LD_LIBRARY_PATH: ${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}$DISCORD_GAME_SDK_PATH/lib/x86_64
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Downloading lib
-      run: wget -O /tmp/discord_lib.zip https://dl-game-sdk.discordapp.net/latest/discord_game_sdk.zip
-    - name: Unzip
-      run: unzip -d $DISCORD_GAME_SDK_PATH /tmp/discord_lib.zip
-    - name: Lib preperation
-      run: cp $DISCORD_GAME_SDK_PATH/lib/x86_64/{,lib}discord_game_sdk.so
-
   build:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
     - name: Downloading discord-game-sdk
