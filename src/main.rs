@@ -1,1 +1,1 @@
-pub use console_player::run as main;
+pub use console_player_old::run as main;

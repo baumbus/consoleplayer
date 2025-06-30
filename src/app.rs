@@ -2,7 +2,7 @@ use std::io;
 
 use discord_game_sdk::Discord;
 use dotenv::var;
-use log::info;
+use log::{error, info};
 use ratatui::{
     DefaultTerminal, Frame,
     crossterm::event::{self, Event, KeyEventKind},
@@ -16,10 +16,9 @@ use crate::{
     game::{Game, gamefile::GameFile, gamelist::GameList},
 };
 
-use crate::app::input::Input as AppInput;
 use crate::app::state::State as AppState;
+use crate::tui::input::Input as AppInput;
 
-mod input;
 mod state;
 
 #[derive(Debug)]
@@ -30,15 +29,6 @@ pub(crate) struct App<'a> {
     discord: Discord<'a, EventHandler>,
     gamefile: GameFile,
     state: AppState,
-    input: AppInput,
-}
-
-impl FromIterator<Game> for GameList {
-    fn from_iter<T: IntoIterator<Item = Game>>(iter: T) -> Self {
-        let items = iter.into_iter().collect();
-
-        Self { items }
-    }
 }
 
 impl<'a> App<'a> {
@@ -50,24 +40,23 @@ impl<'a> App<'a> {
             discord: Self::init_discord()?,
             gamefile: GameFile::new()?,
             state: AppState::default(),
-            input: AppInput::default(),
         })
     }
 
     fn add_games<T: std::iter::IntoIterator<Item = Game>>(&mut self, games: T) {
         for game in games {
-            self.list.items.push(game);
+            self.list.push(game);
         }
     }
 
     fn add_game(&mut self, game: Game) {
-        self.list.items.push(game);
+        self.list.push(game);
     }
 
     fn replace_current_selection(&mut self, game: Game) -> Option<usize> {
         let selected = self.list_state.selected()?;
 
-        let selected_game = self.list.items.get_mut(selected)?;
+        let selected_game = self.list.get_mut(selected)?;
 
         *selected_game = game;
 
@@ -102,7 +91,13 @@ impl<'a> App<'a> {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        frame.render_stateful_widget(&self.list, frame.area(), &mut self.list_state);
+        match &self.state {
+            AppState::Selection => {
+                frame.render_stateful_widget(&self.list, frame.area(), &mut self.list_state)
+            }
+            AppState::Editing(input) => input.render(frame.area(), frame),
+            AppState::Adding(input) => input.render(frame.area(), frame),
+        }
     }
 
     fn handle_events(&mut self) -> io::Result<()> {
@@ -119,47 +114,75 @@ impl<'a> App<'a> {
     }
 
     fn handle_key_event(&mut self, event: Event) {
-        match self.state {
-            AppState::Selection => if let Event::Key(key_event) = event { match key_event.code {
+        if self.state == AppState::Selection
+            && let Event::Key(key_event) = event
+        {
+            match key_event.code {
                 event::KeyCode::Char('q') => self.exit(),
                 event::KeyCode::Char('u') => self.select_none(),
-                event::KeyCode::Char('e') if self.selected_game().is_some() => {
-                    self.switch_state_to(AppState::Editing)
+                event::KeyCode::Char('e') if let Some(game) = self.selected_game() => {
+                    self.switch_state_to(AppState::Editing(game.into()));
                 }
-                event::KeyCode::Char('a') => self.switch_state_to(AppState::Adding),
+                event::KeyCode::Char('a') => {
+                    self.switch_state_to(AppState::Adding(AppInput::default()))
+                }
+                event::KeyCode::Char('d') => self.delete_selected(),
+                event::KeyCode::Char('s') => {
+                    if let Err(err) = self.update_gamefile() {
+                        error!("Error while saving the config: {err}")
+                    }
+                }
                 event::KeyCode::Up => self.select_previous(),
                 event::KeyCode::Down => self.select_next(),
                 event::KeyCode::PageUp => self.select_first(),
                 event::KeyCode::PageDown => self.select_last(),
                 event::KeyCode::Enter => self.activate_current(),
                 _ => {}
-            } },
-            AppState::Editing => match event {
-                Event::Key(key_event) if key_event.code == event::KeyCode::Enter => {
-                    self.replace_current_selection((&self.input).into());
+            }
+        }
+
+        if self.state.is_adding()
+            && let Event::Key(key_event) = event
+        {
+            match key_event.code {
+                event::KeyCode::Enter => {
+                    let game: Game = if let AppState::Adding(ref input) = self.state {
+                        input.into()
+                    } else {
+                        unreachable!()
+                    };
+
+                    self.add_game(game);
                     self.state = AppState::Selection;
-                },
-                Event::Key(key_event) if key_event.code == event::KeyCode::Esc => {
-                    self.input.reset();
-                    self.state = AppState::Selection;
-                },
-                evt => {
-                    self.input.handle_event(&evt);
                 }
-            },
-            AppState::Adding => match event {
-                Event::Key(key_event) if key_event.code == event::KeyCode::Enter => {
-                    self.add_game((&self.input).into());
-                    self.state = AppState::Selection;
-                },
-                Event::Key(key_event) if key_event.code == event::KeyCode::Esc => {
-                    self.input.reset();
-                    self.state = AppState::Selection;
-                },
-                evt => {
-                    self.input.handle_event(&evt);
+                event::KeyCode::Esc => self.state = AppState::Selection,
+                _ if let AppState::Adding(ref mut input) = self.state => {
+                    input.handle_event(&event);
                 }
-            },
+                _ => unreachable!(),
+            }
+        }
+
+        if self.state.is_editing()
+            && let Event::Key(key_event) = event
+        {
+            match key_event.code {
+                event::KeyCode::Enter => {
+                    let game: Game = if let AppState::Editing(ref input) = self.state {
+                        input.into()
+                    } else {
+                        unreachable!()
+                    };
+
+                    self.replace_current_selection(game);
+                    self.state = AppState::Selection;
+                }
+                event::KeyCode::Esc => self.state = AppState::Selection,
+                _ if let AppState::Editing(ref mut input) = self.state => {
+                    input.handle_event(&event);
+                }
+                _ => unreachable!(),
+            }
         }
     }
 
@@ -191,13 +214,20 @@ impl<'a> App<'a> {
         self.list_state.select_previous();
     }
 
-    const fn switch_state_to(&mut self, state: AppState) {
+    fn delete_selected(&mut self) {
+        if let Some(index) = self.list_state.selected() {
+            let game = self.list.remove(index);
+            info!("Deleted: {game:?}");
+        }
+    }
+
+    fn switch_state_to(&mut self, state: AppState) {
         self.state = state;
     }
 
     #[inline]
     fn selected_game(&self) -> Option<Game> {
-        self.list.items.get(self.list_state.selected()?).cloned()
+        self.list.get(self.list_state.selected()?).cloned()
     }
 
     fn activate_current(&mut self) {
@@ -212,9 +242,16 @@ impl<'a> App<'a> {
         if let Some(ref activity) = activity {
             self.discord.update_activity(activity, |_discord, result| {
                 if let Err(error) = result {
-                    eprintln!("failed to update activity: {}", error);
+                    eprintln!("failed to update activity: {error}");
                 }
             });
         }
+    }
+
+    fn update_gamefile(&mut self) -> Result<(), crate::Error> {
+        self.gamefile = GameFile::try_from(&self.list)?;
+        self.gamefile.write()?;
+
+        Ok(())
     }
 }

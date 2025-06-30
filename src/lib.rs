@@ -1,4 +1,5 @@
 #![warn(clippy::missing_const_for_fn)]
+#![feature(if_let_guard)]
 
 use dotenv::dotenv;
 
@@ -9,7 +10,8 @@ pub use crate::error::Error;
 mod app;
 mod error;
 mod event_handler;
-pub mod game;
+mod game;
+mod tui;
 
 #[derive(Debug, Parser, Hash, PartialEq, Eq, Clone, Copy)]
 struct Config {
@@ -32,8 +34,6 @@ pub fn run() -> color_eyre::Result<()> {
     let result = App::new()?.run(&mut terminal, config);
     ratatui::try_restore()?;
     result?;
-
-    let _ = config;
 
     // let mut game = Game::builder().name("Mario & Luigi Brothership".into()).large_image_key("marioandluigibrothership".into()).build();
 

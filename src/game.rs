@@ -114,6 +114,30 @@ impl Game {
 
         self.activity = Some(activity);
     }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn platform(&self) -> &str {
+        &self.platform
+    }
+
+    pub const fn large_image_key(&self) -> Option<&String> {
+        self.large_image_key.as_ref()
+    }
+
+    pub const fn large_image_tooltip(&self) -> Option<&String> {
+        self.large_image_tooltip.as_ref()
+    }
+
+    pub const fn small_image_key(&self) -> Option<&String> {
+        self.small_image_key.as_ref()
+    }
+
+    pub const fn small_image_tooltip(&self) -> Option<&String> {
+        self.small_image_tooltip.as_ref()
+    }
 }
 
 #[cfg(test)]

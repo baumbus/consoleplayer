@@ -1,13 +1,66 @@
 [package]
-name = "console-player"
+name    = "console-player-old"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[workspace]
+members         = ["console-player-core", "console-player"]
+default-members = ["console-player"]
+
+[workspace.dependencies]
+log                = "0.4.27"
+thiserror          = "2.0.12"
+tracing            = "0.1.41"
+tracing-journald   = "0.3.1"
+tracing-subscriber = "0.3.19"
+
+# core
+console-player-core = { path = "./console-player-core/" }
+
+# frontend
 anyhow = "1.0.97"
-bon = "3.5.1"
-chrono = "0.4.40"
 clap = { version = "4.5.35", features = ["derive"] }
+dotenv = "0.15.0"
+color-eyre = "0.6.3"
+tui-input = { version = "0.12.0", features = ["serde"] }
+tui-logger = { version = "0.17.1" }
+ratatui = { version = "0.29.0", features = [
+    "all-widgets",
+    "document-features",
+    "macros",
+    "serde",
+] }
+
+# backend
+discord_game_sdk = "1.0.1"
+rusqlite         = "0.36.0"
+toml             = "0.8.20"
+
+# async
+tokio = { version = "1.45.1", features = ["full"] }
+
+# misc
+env_logger  = "0.11.8"
+strum       = { version = "0.27.1", features = ["derive"] }
+signal-hook = "0.3.17"
+bon         = "3.5.1"
+chrono      = "0.4.40"
+serde       = { version = "1.0.219", features = ["derive"] }
+
+# dev
+pretty_assertions = "1.4.1"
+
+# testing
+criterion = { version = "0.6.0", features = [] }
+
+# file lock
+fd-lock = "4.0.4"
+
+[dependencies]
+anyhow     = "1.0.97"
+bon        = "3.5.1"
+chrono     = "0.4.40"
+clap       = { version = "4.5.35", features = ["derive"] }
 color-eyre = "0.6.3"
 # crossterm = "0.29.0"
 discord_game_sdk = "1.0.1"
@@ -15,10 +68,16 @@ dotenv = "0.15.0"
 env_logger = "0.11.8"
 log = "0.4.27"
 pretty_assertions = "1.4.1"
-ratatui = { version = "0.29.0", features = ["all-widgets", "document-features", "macros", "serde"] }
+ratatui = { version = "0.29.0", features = [
+    "all-widgets",
+    "document-features",
+    "macros",
+    "serde",
+] }
 serde = { version = "1.0.219", features = ["derive"] }
 signal-hook = "0.3.17"
+strum = { version = "0.27.1", features = ["derive"] }
 thiserror = "2.0.12"
 toml = "0.8.20"
 tui-input = { version = "0.12.0", features = ["serde"] }
-tui-logger = {version = "0.17.1" }
+tui-logger = { version = "0.17.1" }

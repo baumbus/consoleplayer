@@ -2,7 +2,7 @@ list:
     just --list
 
 doc:
-    cargo doc --document-private-items --open
+    cargo doc --document-private-items --open --workspace
 
 doc-build:
     cargo doc --document-private-items
@@ -14,6 +14,9 @@ release:
     cargo build --release
 
 dev: build doc-build
+
+run-daemon:
+    cargo run --bin console-player-daemon
 
 commit:
     git add .

@@ -9,7 +9,35 @@ use crate::game::Game;
 
 #[derive(Debug, Default)]
 pub(crate) struct GameList {
-    pub(crate) items: Vec<Game>,
+    items: Vec<Game>,
+}
+
+impl GameList {
+    pub fn push(&mut self, value: Game) {
+        self.items.push(value)
+    }
+
+    pub fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
+    where
+        I: std::slice::SliceIndex<[Game]>,
+    {
+        self.items.get_mut(index)
+    }
+
+    pub fn remove(&mut self, index: usize) -> Game {
+        self.items.remove(index)
+    }
+
+    pub fn get<I>(&self, index: I) -> Option<&I::Output>
+    where
+        I: std::slice::SliceIndex<[Game]>,
+    {
+        self.items.get(index)
+    }
+
+    pub fn clone_inner(&self) -> Vec<Game> {
+        self.items.clone()
+    }
 }
 
 impl StatefulWidget for &GameList {
@@ -48,5 +76,13 @@ impl StatefulWidget for &GameList {
             .highlight_style(Style::new().light_blue().italic());
 
         StatefulWidget::render(list, area, buf, state);
+    }
+}
+
+impl FromIterator<Game> for GameList {
+    fn from_iter<T: IntoIterator<Item = Game>>(iter: T) -> Self {
+        let items = iter.into_iter().collect();
+
+        Self { items }
     }
 }

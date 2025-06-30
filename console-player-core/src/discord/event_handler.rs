@@ -1,9 +1,10 @@
-use log::info;
+use tracing::info;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct EventHandler;
 
 impl discord_game_sdk::EventHandler for EventHandler {
+    #[tracing::instrument]
     fn on_user_achievement_update(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -13,11 +14,13 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("user achievement update: {user_achievement:#?}");
     }
 
+    #[tracing::instrument]
     fn on_activity_join(&mut self, discord: &discord_game_sdk::Discord<'_, Self>, secret: &str) {
         let _ = discord;
         info!("activity join: {secret}");
     }
 
+    #[tracing::instrument]
     fn on_activity_spectate(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -27,6 +30,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("activity spectate: {secret}");
     }
 
+    #[tracing::instrument]
     fn on_activity_join_request(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -36,6 +40,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("activity join request: {user:#?}");
     }
 
+    #[tracing::instrument]
     fn on_activity_invite(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -47,6 +52,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("activity invite: {kind:#?}; {user:#?}; {activity:#?}");
     }
 
+    #[tracing::instrument]
     fn on_lobby_update(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -56,6 +62,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("lobby update: {lobby_id:#?}");
     }
 
+    #[tracing::instrument]
     fn on_lobby_delete(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -66,6 +73,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("lobby delete: {lobby_id:#?}; reason: {reason}");
     }
 
+    #[tracing::instrument]
     fn on_member_connect(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -76,6 +84,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("member connect: {lobby_id:#?}; {member_id:#?}");
     }
 
+    #[tracing::instrument]
     fn on_member_update(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,
@@ -86,6 +95,7 @@ impl discord_game_sdk::EventHandler for EventHandler {
         info!("member update: {lobby_id:#?}; {member_id:#?}");
     }
 
+    #[tracing::instrument]
     fn on_member_disconnect(
         &mut self,
         discord: &discord_game_sdk::Discord<'_, Self>,

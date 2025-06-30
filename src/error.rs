@@ -11,7 +11,9 @@ pub enum Error {
     #[error(transparent)]
     IoError(#[from] std::io::Error),
     #[error(transparent)]
-    TomlError(#[from] toml::de::Error),
+    TomlDeError(#[from] toml::de::Error),
+    #[error(transparent)]
+    TomlSerError(#[from] toml::ser::Error),
     #[error(transparent)]
     DotEnv(#[from] dotenv::Error),
     #[error(transparent)]
