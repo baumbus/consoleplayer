@@ -13,6 +13,11 @@ mod event_handler;
 mod game;
 mod tui;
 
+pub mod config;
+pub mod domain;
+pub mod inbound;
+pub mod outbound;
+
 #[derive(Debug, Parser, Hash, PartialEq, Eq, Clone, Copy)]
 struct Config {
     #[arg(short, long)]

@@ -1,3 +1,4 @@
+#[expect(dead_code)]
 pub enum State {
     NotConnected,
     Selection,

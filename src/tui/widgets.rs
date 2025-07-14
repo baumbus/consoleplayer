@@ -4,6 +4,7 @@ use ratatui::{
     widgets::{Block, Paragraph, Widget},
 };
 
+#[expect(dead_code)]
 pub struct Controls;
 
 impl Controls {

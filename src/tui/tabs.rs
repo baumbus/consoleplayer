@@ -10,6 +10,7 @@ pub enum Tabs {
     Editing,
 }
 
+#[expect(dead_code)]
 impl Tabs {
     /// Get the previous tab, if there is no previous tab return the current tab.
     fn previous(self) -> Self {
